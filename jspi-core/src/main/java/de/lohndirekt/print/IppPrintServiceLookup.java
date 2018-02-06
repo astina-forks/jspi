@@ -18,16 +18,7 @@
  */
 package de.lohndirekt.print;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import de.lohndirekt.print.attribute.auth.RequestingUserPassword;
 
 import javax.print.DocFlavor;
 import javax.print.MultiDocPrintService;
@@ -36,8 +27,11 @@ import javax.print.PrintServiceLookup;
 import javax.print.attribute.Attribute;
 import javax.print.attribute.AttributeSet;
 import javax.print.attribute.standard.RequestingUserName;
-
-import de.lohndirekt.print.attribute.auth.RequestingUserPassword;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /** 
  * 
@@ -105,7 +99,10 @@ public class IppPrintServiceLookup extends PrintServiceLookup {
      * @param password used for authentication
      */
     public IppPrintServiceLookup(URI uri, String username, String password) {
-        cupsServers.add(new IppServer(uri, new RequestingUserName(username,Locale.getDefault()),new RequestingUserPassword(password,Locale.getDefault())));
+        cupsServers.add(new IppServer(
+                uri,
+                username == null ? null : new RequestingUserName(username, Locale.getDefault()),
+                password == null ? null : new RequestingUserPassword(password, Locale.getDefault())));
     }
 
     /* (non-Javadoc)
