@@ -17,28 +17,6 @@
  *  
  */
 package de.lohndirekt.print;
-import java.io.IOException;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import javax.print.DocFlavor;
-import javax.print.DocPrintJob;
-import javax.print.PrintException;
-import javax.print.PrintService;
-import javax.print.ServiceUIFactory;
-import javax.print.attribute.*;
-import javax.print.attribute.standard.PrinterURI;
-import javax.print.attribute.standard.RequestingUserName;
-import javax.print.event.PrintServiceAttributeListener;
 
 import de.lohndirekt.print.attribute.IppAttributeName;
 import de.lohndirekt.print.attribute.IppStatus;
@@ -48,6 +26,17 @@ import de.lohndirekt.print.attribute.ipp.jobdesc.JobId;
 import de.lohndirekt.print.attribute.ipp.printerdesc.supported.DocumentFormatSupported;
 import de.lohndirekt.print.attribute.ipp.printerdesc.supported.OperationsSupported;
 
+import javax.print.*;
+import javax.print.attribute.*;
+import javax.print.attribute.standard.PrinterURI;
+import javax.print.attribute.standard.RequestingUserName;
+import javax.print.event.PrintServiceAttributeListener;
+import java.io.IOException;
+import java.net.URI;
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
  * @author bpusch
  *
@@ -56,17 +45,23 @@ import de.lohndirekt.print.attribute.ipp.printerdesc.supported.OperationsSupport
 public class IppPrintService implements PrintService {
 
 	private final Logger log = Logger.getLogger(this.getClass().getName());
+	private final IppRequestFactory requestFactory;
 	private DocFlavor[] supportedFlavors = null;
 	private URI uri;
 	private RequestingUserName requestingUserName = null;
 	private RequestingUserPassword requestingUserPassword = null;
 	private Map attributes = null;
-	
+
+	public IppPrintService(IppRequestFactory requestFactory, URI uri) {
+		this.requestFactory = requestFactory;
+		this.uri = uri;
+	}
+
 	/**
 	 * @param uri
 	 */
 	public IppPrintService(URI uri) {
-		this.uri = uri;
+		this(new DefaultIppRequestFactory(), uri);
 	}
 	
 	
@@ -472,12 +467,20 @@ public class IppPrintService implements PrintService {
 		return this.getName();
 	}
 
+	protected IppRequest request(URI uri, OperationsSupported operation) {
+		IppRequest request = requestFactory.createIppRequest(uri, operation, this.getRequestingUserName(), this.getRequestingUserPassword());
+		AttributeSet operationAttributes = new HashAttributeSet();
+		operationAttributes.add(new PrinterURI(uri));
+		request.addOperationAttributes(operationAttributes);
+		return request;
+	}
+
 	/**
 	 * @param operation
 	 * @return
 	 */
 	protected IppRequest request(OperationsSupported operation) {
-		IppRequest request = IppRequestFactory.createIppRequest(this.uri, operation, this.getRequestingUserName(), this.getRequestingUserPassword());
+		IppRequest request = requestFactory.createIppRequest(this.uri, operation, this.getRequestingUserName(), this.getRequestingUserPassword());
 		AttributeSet operationAttributes = new HashAttributeSet();
 		operationAttributes.add(new PrinterURI(this.uri));
 		request.addOperationAttributes(operationAttributes);

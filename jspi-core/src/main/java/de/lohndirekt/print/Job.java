@@ -18,39 +18,27 @@
  */
 package de.lohndirekt.print;
 
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import javax.print.Doc;
-import javax.print.DocPrintJob;
-import javax.print.PrintException;
-import javax.print.PrintService;
-import javax.print.attribute.Attribute;
-import javax.print.attribute.AttributeSet;
-import javax.print.attribute.HashAttributeSet;
-import javax.print.attribute.HashPrintJobAttributeSet;
-import javax.print.attribute.PrintJobAttribute;
-import javax.print.attribute.PrintJobAttributeSet;
-import javax.print.attribute.PrintRequestAttributeSet;
-import javax.print.event.PrintJobAttributeListener;
-import javax.print.event.PrintJobEvent;
-import javax.print.event.PrintJobListener;
-
 import de.lohndirekt.print.attribute.AttributeHelper;
 import de.lohndirekt.print.attribute.IppAttributeName;
 import de.lohndirekt.print.attribute.IppStatus;
 import de.lohndirekt.print.attribute.ipp.jobdesc.JobId;
 import de.lohndirekt.print.attribute.ipp.jobdesc.JobUri;
 import de.lohndirekt.print.attribute.ipp.printerdesc.supported.OperationsSupported;
+
+import javax.print.Doc;
+import javax.print.DocPrintJob;
+import javax.print.PrintException;
+import javax.print.PrintService;
+import javax.print.attribute.*;
+import javax.print.event.PrintJobAttributeListener;
+import javax.print.event.PrintJobEvent;
+import javax.print.event.PrintJobListener;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * @author bpusch
@@ -206,7 +194,7 @@ class Job implements DocPrintJob {
 	}
 
 	private IppRequest request(OperationsSupported operation) {
-		IppRequest request = IppRequestFactory.createIppRequest(this.jobUri.getURI(), operation, this.printService.getRequestingUserName(), this.printService.getRequestingUserPassword());
+		IppRequest request = printService.request(jobUri.getURI(), operation);
 		AttributeSet operationAttributes = new HashAttributeSet();
 		operationAttributes.add(this.jobUri);
 		request.addOperationAttributes(operationAttributes);

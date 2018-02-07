@@ -18,8 +18,8 @@
  */
 package com.xinterium.jspi.test;
 
+import de.lohndirekt.print.DefaultIppRequestFactory;
 import de.lohndirekt.print.IppPrintServiceLookup;
-import de.lohndirekt.print.IppRequestFactory;
 import de.lohndirekt.print.attribute.IppAttributeName;
 import de.lohndirekt.print.IppRequestTestImpl;
 import junit.framework.TestCase;
@@ -53,7 +53,7 @@ public class IppPrintServiceTest extends TestCase {
      */
     protected void setUp() throws Exception {
         super.setUp();
-        System.setProperty(IppRequestFactory.IPP_REQUEST_IMPL_KEY, IppRequestTestImpl.class.getName());
+        System.setProperty(DefaultIppRequestFactory.IPP_REQUEST_IMPL_KEY, IppRequestTestImpl.class.getName());
         IppPrintServiceLookup lookup = new IppPrintServiceLookup(new URI("http://127.0.0.1"), "", "");
         PrintService[] services = lookup.getPrintServices();
         this.service = services[0];

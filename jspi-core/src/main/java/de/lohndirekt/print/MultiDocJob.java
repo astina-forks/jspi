@@ -18,12 +18,11 @@
  */
 package de.lohndirekt.print;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Map;
-import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import de.lohndirekt.print.attribute.AttributeHelper;
+import de.lohndirekt.print.attribute.IppAttributeName;
+import de.lohndirekt.print.attribute.IppStatus;
+import de.lohndirekt.print.attribute.ipp.jobdesc.JobUri;
+import de.lohndirekt.print.attribute.ipp.printerdesc.supported.OperationsSupported;
 
 import javax.print.DocFlavor;
 import javax.print.MultiDoc;
@@ -34,12 +33,12 @@ import javax.print.attribute.DocAttributeSet;
 import javax.print.attribute.HashAttributeSet;
 import javax.print.attribute.PrintRequestAttributeSet;
 import javax.print.event.PrintJobEvent;
-
-import de.lohndirekt.print.attribute.AttributeHelper;
-import de.lohndirekt.print.attribute.IppAttributeName;
-import de.lohndirekt.print.attribute.IppStatus;
-import de.lohndirekt.print.attribute.ipp.jobdesc.JobUri;
-import de.lohndirekt.print.attribute.ipp.printerdesc.supported.OperationsSupported;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Map;
+import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 /**
  * @author bpusch
  *
@@ -161,7 +160,7 @@ class MultiDocJob extends Job implements MultiDocPrintJob {
 	}
     
 	private IppRequest request(OperationsSupported operation) {
-		IppRequest request = IppRequestFactory.createIppRequest(this.jobUri.getURI(), operation, this.printService.getRequestingUserName(), this.printService.getRequestingUserPassword());
+		IppRequest request = printService.request(jobUri.getURI(), operation);
 		AttributeSet operationAttributes = new HashAttributeSet();
 		operationAttributes.add(new JobUri(this.jobUri.getURI()));
 		request.addOperationAttributes(operationAttributes);

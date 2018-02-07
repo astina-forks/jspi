@@ -18,6 +18,13 @@
  */
 package de.lohndirekt.print;
 
+import de.lohndirekt.print.attribute.IppAttributeName;
+import de.lohndirekt.print.attribute.auth.RequestingUserPassword;
+import de.lohndirekt.print.attribute.ipp.printerdesc.supported.OperationsSupported;
+
+import javax.print.attribute.Attribute;
+import javax.print.attribute.URISyntax;
+import javax.print.attribute.standard.RequestingUserName;
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
@@ -27,14 +34,6 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.print.attribute.Attribute;
-import javax.print.attribute.URISyntax;
-import javax.print.attribute.standard.RequestingUserName;
-
-import de.lohndirekt.print.attribute.IppAttributeName;
-import de.lohndirekt.print.attribute.auth.RequestingUserPassword;
-import de.lohndirekt.print.attribute.ipp.printerdesc.supported.OperationsSupported;
-
 /**
  * @author bpusch
  *
@@ -42,14 +41,21 @@ import de.lohndirekt.print.attribute.ipp.printerdesc.supported.OperationsSupport
 class IppServer {
 
 	private final Logger log = Logger.getLogger(this.getClass().getName());
-	private URI uri;
-	private RequestingUserName user;
-	private RequestingUserPassword passwd;
-	
-	IppServer(URI uri, RequestingUserName user, RequestingUserPassword passwd) {
+	private final IppRequestFactory requestFactory;
+	private final URI uri;
+	private final RequestingUserName user;
+	private final RequestingUserPassword passwd;
+
+
+	IppServer(IppRequestFactory requestFactory, URI uri, RequestingUserName user, RequestingUserPassword passwd) {
+		this.requestFactory = requestFactory;
 		this.uri = uri;
 		this.user = user;
 		this.passwd = passwd;
+	}
+
+	IppServer(URI uri, RequestingUserName user, RequestingUserPassword passwd) {
+		this(new DefaultIppRequestFactory(), uri, user, passwd);
 	}
 
 	/**
@@ -68,7 +74,7 @@ class IppServer {
 			throw new IllegalArgumentException("Operation not applicable");
 		}
 		IppResponse response = null;
-		IppRequest request = IppRequestFactory.createIppRequest(this.uri, operation,user,passwd);
+		IppRequest request = requestFactory.createIppRequest(this.uri, operation,user,passwd);
 		try {
 			response = request.send();
 		} catch (IOException e) {

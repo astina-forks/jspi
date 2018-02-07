@@ -18,12 +18,13 @@
  */
 package de.lohndirekt.print;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.SequenceInputStream;
-import java.io.UnsupportedEncodingException;
+import de.lohndirekt.print.attribute.*;
+import de.lohndirekt.print.attribute.ipp.Charset;
+import de.lohndirekt.print.attribute.ipp.NaturalLanguage;
+import de.lohndirekt.print.attribute.ipp.printerdesc.supported.OperationsSupported;
+
+import javax.print.attribute.*;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.util.HashMap;
@@ -31,23 +32,6 @@ import java.util.Map;
 import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import javax.print.attribute.Attribute;
-import javax.print.attribute.AttributeSet;
-import javax.print.attribute.HashAttributeSet;
-import javax.print.attribute.HashPrintJobAttributeSet;
-import javax.print.attribute.PrintJobAttributeSet;
-import javax.print.attribute.TextSyntax;
-
-import de.lohndirekt.print.attribute.AttributeHelper;
-import de.lohndirekt.print.attribute.AttributeParser;
-import de.lohndirekt.print.attribute.AttributeWriter;
-import de.lohndirekt.print.attribute.IppAttributeName;
-import de.lohndirekt.print.attribute.IppDelimiterTag;
-import de.lohndirekt.print.attribute.IppStatus;
-import de.lohndirekt.print.attribute.ipp.Charset;
-import de.lohndirekt.print.attribute.ipp.NaturalLanguage;
-import de.lohndirekt.print.attribute.ipp.printerdesc.supported.OperationsSupported;
 
 /**
  * @author bpusch, speters, sefftinge, bhagyas
@@ -135,7 +119,7 @@ class IppRequestCupsImpl implements IppRequest {
     /**
      * @param operation
      */
-    IppRequestCupsImpl(URI path, OperationsSupported operation) {
+    protected IppRequestCupsImpl(URI path, OperationsSupported operation) {
         this.path = path;
         this.operation = operation;
         init();
@@ -234,7 +218,7 @@ class IppRequestCupsImpl implements IppRequest {
     /**
      *  
      */
-    private byte[] ippHeader() {
+    byte[] ippHeader(OperationsSupported operation, int id) {
         //Ipp header data according to http://www.ietf.org/rfc/rfc2910.txt
         ByteArrayOutputStream out = new ByteArrayOutputStream(8);
         //The first 2 bytes represent the IPP version number (1.1)
@@ -243,9 +227,9 @@ class IppRequestCupsImpl implements IppRequest {
         //minor version-number
         out.write((byte) 1);
         //2 byte operation id
-        AttributeWriter.writeInt2(this.operation.getValue(), out);
+        AttributeWriter.writeInt2(operation.getValue(), out);
         //4 byte request id
-        AttributeWriter.writeInt4(this.id, out);
+        AttributeWriter.writeInt4(id, out);
         return out.toByteArray();
     }
 
@@ -294,7 +278,7 @@ class IppRequestCupsImpl implements IppRequest {
             this.conn = new IppHttpConnection(this.path, username, password);
 
             Vector v = new Vector();
-            v.add(new ByteArrayInputStream(this.ippHeader()));
+            v.add(new ByteArrayInputStream(this.ippHeader(operation, id)));
             v.add(new ByteArrayInputStream(this.ippAttributes()));
             v.add(new ByteArrayInputStream(this.ippFooter()));
             if (this.data != null) {
