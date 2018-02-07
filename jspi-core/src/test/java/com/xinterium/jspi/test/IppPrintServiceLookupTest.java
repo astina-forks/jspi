@@ -1,23 +1,23 @@
 package com.xinterium.jspi.test;
 
-import java.util.Locale;
+import de.lohndirekt.print.IppPrintServiceLookup;
+import de.lohndirekt.print.Messages;
+import de.lohndirekt.print.attribute.auth.RequestingUserPassword;
+import junit.framework.TestCase;
+import org.junit.Ignore;
 
 import javax.print.DocFlavor;
 import javax.print.PrintService;
 import javax.print.attribute.AttributeSet;
 import javax.print.attribute.HashAttributeSet;
 import javax.print.attribute.standard.RequestingUserName;
-
-import de.lohndirekt.print.IppPrintServiceLookup;
-import de.lohndirekt.print.Messages;
-import de.lohndirekt.print.attribute.auth.RequestingUserPassword;
-
-import junit.framework.TestCase;
+import java.util.Locale;
 
 /**
  * @author bpusch
  *
  */
+@Ignore
 public class IppPrintServiceLookupTest extends TestCase {
 
 	/**
@@ -57,14 +57,12 @@ public class IppPrintServiceLookupTest extends TestCase {
 	public void testGetServicesAuthenticated(){
 		RequestingUserName user = new RequestingUserName(Messages.getString("cups.username"), Locale.GERMANY);
 		RequestingUserPassword pass = new RequestingUserPassword(Messages.getString("cups.password"), Locale.GERMANY);
-		
+
 		AttributeSet set = new HashAttributeSet();
 		set.add(user);
 		set.add(pass);
-		
+
 		PrintService[] services = new IppPrintServiceLookup().getPrintServices(DocFlavor.INPUT_STREAM.POSTSCRIPT ,null);
 		assertTrue(services.length>0);
-		
-		
 	}
 }
