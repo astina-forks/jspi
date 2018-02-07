@@ -38,6 +38,11 @@ import java.util.logging.Logger;
  *  
  */
 class IppRequestCupsImpl implements IppRequest {
+
+    static final int DEFAULT_SEND_REQUEST_COUNT = 3;
+
+    static final int DEFAULT_SEND_REQUEST_TIMEOUT = 50;
+
     class IppResponseIppImpl implements IppResponse {
         private Logger log = Logger.getLogger(this.getClass().getName());
 
@@ -107,9 +112,9 @@ class IppRequestCupsImpl implements IppRequest {
 
     private Logger log = Logger.getLogger(this.getClass().getName());
 
-    private static final int SEND_REQUEST_COUNT = 3;
+    private int sendRequestCount = DEFAULT_SEND_REQUEST_COUNT;
 
-    private static final int SEND_REQUEST_TIMEOUT = 50;
+    private int sendRequestTimeout = DEFAULT_SEND_REQUEST_TIMEOUT;
     
     private static final NaturalLanguage NATURAL_LANGUAGE_DEFAULT = NaturalLanguage.EN;
     
@@ -145,6 +150,16 @@ class IppRequestCupsImpl implements IppRequest {
     private void setStandardAttributes() {
         operationAttributes.add(CHARSET_DEFAULT);
         operationAttributes.add(NATURAL_LANGUAGE_DEFAULT);
+    }
+
+    public void setSendRequestCount(int sendRequestCount)
+    {
+        this.sendRequestCount = sendRequestCount;
+    }
+
+    public void setSendRequestTimeout(int sendRequestTimeout)
+    {
+        this.sendRequestTimeout = sendRequestTimeout;
     }
 
     /**
@@ -245,6 +260,7 @@ class IppRequestCupsImpl implements IppRequest {
      */
     public void setData(InputStream data) {
         this.data = data;
+        setSendRequestCount(1); // can't retry streams
     }
 
     public void setData(byte[] data) {
@@ -272,7 +288,7 @@ class IppRequestCupsImpl implements IppRequest {
         String password = findPassword(this.operationAttributes);
         boolean ok = false;
         int tries = 0;
-        while (!ok && tries < SEND_REQUEST_COUNT) {
+        while (!ok && tries < sendRequestCount) {
             tries++;
 
             this.conn = new IppHttpConnection(this.path, username, password);
@@ -291,8 +307,8 @@ class IppRequestCupsImpl implements IppRequest {
             if (conn.getStatusCode() != HttpURLConnection.HTTP_OK) {
                 if (log.isLoggable(Level.INFO)) {
                     String msg = "Cups seems to be busy - STATUSCODE "+conn.getStatusCode();
-                    if (tries < SEND_REQUEST_COUNT) {
-                        msg += " - going to retry in " + SEND_REQUEST_TIMEOUT
+                    if (tries < sendRequestCount) {
+                        msg += " - going to retry in " + sendRequestTimeout
                                 + " ms";
                     }
                     log.warning(msg);
