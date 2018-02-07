@@ -123,7 +123,7 @@ class Job implements DocPrintJob {
 		}
 		notifyJobListeners(PrintJobEvent.NO_MORE_EVENTS);
 		if (!this.ok){
-		    String msg = "Printing " + description(attributes) + "  failed";
+		    String msg = "Printing " + description(attributes) + " failed";
 		    if (response != null && response.getStatus()!=null) {
 		        msg+=": Server status was '"+response.getStatus().getStatus()+" - "+response.getStatus().getText()+"'!";
 		    }
