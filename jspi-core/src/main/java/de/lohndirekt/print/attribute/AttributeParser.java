@@ -419,7 +419,9 @@ public final class AttributeParser {
 		} else if (
 			valueTag == IppValueTag.STRING.getValue()
 				|| valueTag == IppValueTag.TEXT.getValue()
-				|| valueTag == IppValueTag.NAME.getValue()){
+				|| valueTag == IppValueTag.NAME.getValue()
+				|| valueTag == IppValueTag.TEXTLANG.getValue()
+				|| valueTag == IppValueTag.NAMELANG.getValue()){
             String word = parseNameAndTextString(in, valueLength);
             values = new Object[] { word, Locale.getDefault()};                    
         } else if (
